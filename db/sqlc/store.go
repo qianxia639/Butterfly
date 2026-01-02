@@ -1,12 +1,14 @@
 package db
 
-import "database/sql"
+import (
+	"github.com/jmoiron/sqlx"
+)
 
 type Store struct {
 	*Queries
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewStore(db *sql.DB) *Store {
+func NewStore(db *sqlx.DB) *Store {
 	return &Store{db: db}
 }

@@ -2,9 +2,9 @@ package main
 
 import (
 	"Butterfly/config"
+	db "Butterfly/db/sqlc"
 	"Butterfly/handler"
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,11 +12,12 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	_ "github.com/jackc/pgx/v5"
+	"github.com/jmoiron/sqlx"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
-
 	conf, err := config.LoadConfig("config/.")
 	if err != nil {
 		log.Fatalf("Can't load config: %v", err)
@@ -25,7 +26,14 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	router := handler.NewHandler(conf, nil)
+	dbConn, err := sqlx.Connect(conf.Postgres.Driver, conf.Postgres.DatabaseSource())
+	if err != nil {
+		log.Fatalf("Can't connect database: %v", err)
+	}
+
+	store := db.NewStore(dbConn)
+
+	router := handler.NewHandler(conf, store)
 
 	srv := &http.Server{
 		Addr:    conf.Http.Address(),

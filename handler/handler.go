@@ -3,6 +3,7 @@ package handler
 import (
 	"Butterfly/config"
 	db "Butterfly/db/sqlc"
+	"Butterfly/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,12 +12,13 @@ type Handler struct {
 	Router *gin.Engine
 	conf   config.Config
 	store  *db.Store
+	token  token.Maker
 }
 
-func NewHandler(conf config.Config,store *db.Store) *Handler {
+func NewHandler(conf config.Config, store *db.Store) *Handler {
 
 	handler := &Handler{
-		conf: conf,
+		conf:  conf,
 		store: store,
 	}
 

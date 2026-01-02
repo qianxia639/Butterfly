@@ -1,0 +1,13 @@
+[http]
+host = "localhost"
+port = 8080
+
+[postgres]
+host = "localhost"
+port = 5432
+username = "postgres"
+password = "postgres"
+db_name = "butterfly"
+ssl_mode = "disable"
+driver = "postgres"
+migrate_url = "file://db/migration"

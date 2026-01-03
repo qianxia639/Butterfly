@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	_ "github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -26,10 +26,17 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	dbConn, err := sqlx.Connect(conf.Postgres.Driver, conf.Postgres.DatabaseSource())
+	// pool, err := pgxpool.New(ctx, conf.Postgres.DatabaseSource())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer pool.Close()
+
+	dbConn, err := sqlx.Connect("pgx", conf.Postgres.DatabaseUrl())
 	if err != nil {
 		log.Fatalf("Can't connect database: %v", err)
 	}
+	defer dbConn.Close()
 
 	store := db.NewStore(dbConn)
 

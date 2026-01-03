@@ -17,9 +17,12 @@ type Handler struct {
 
 func NewHandler(conf config.Config, store *db.Store) *Handler {
 
+	token := token.NewPasetoMaker("plokmnjiuhbvgytfcxdreszawq564738")
+
 	handler := &Handler{
 		conf:  conf,
 		store: store,
+		token: token,
 	}
 
 	handler.setupRouter()
@@ -43,8 +46,8 @@ func (handler *Handler) setupRouter() {
 
 	// User Router
 	{
-		router.POST("/login")
-		router.POST("/user")
+		router.POST("/login", handler.login)
+		router.POST("/user", handler.createUser)
 
 	}
 

@@ -82,6 +82,7 @@ func (h *Handler) createUser(ctx *gin.Context) {
 		return
 	}
 
+	ctx.JSON(http.StatusOK, gin.H{"message": "Create Success"})
 	// h.Success(ctx, "Create Success")
 }
 

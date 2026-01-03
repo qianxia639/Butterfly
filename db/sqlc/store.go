@@ -10,5 +10,8 @@ type Store struct {
 }
 
 func NewStore(db *sqlx.DB) *Store {
-	return &Store{db: db}
+	return &Store{
+		db:      db,
+		Queries: New(db),
+	}
 }

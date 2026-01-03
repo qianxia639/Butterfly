@@ -13,6 +13,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -26,17 +29,13 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// pool, err := pgxpool.New(ctx, conf.Postgres.DatabaseSource())
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer pool.Close()
-
-	dbConn, err := sqlx.Connect("pgx", conf.Postgres.DatabaseUrl())
+	dbConn, err := sqlx.Connect("pgx", conf.Postgres.DatabaseSource())
 	if err != nil {
 		log.Fatalf("Can't connect database: %v", err)
 	}
 	defer dbConn.Close()
+
+	runDbMigration(conf.Postgres.MigrationUrl, conf.Postgres.DatabaseUrl())
 
 	store := db.NewStore(dbConn)
 
@@ -71,4 +70,17 @@ func shutdown(ctx context.Context, srv *http.Server) {
 	}
 
 	log.Println("Server closed...")
+}
+
+func runDbMigration(migrationUrl, dbSource string) {
+	migration, err := migrate.New(migrationUrl, dbSource)
+	if err != nil {
+		log.Fatalf("cannot create new migrate instance, Err: %v", err)
+	}
+
+	if err := migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("failed to run migrate up, Err: %v", err)
+	}
+
+	log.Print("db migrated successfully...")
 }
